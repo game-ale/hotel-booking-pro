@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'login.dart';
+import '../bottom_nav/bottom_nav.dart';
+import '../Services/auth_service.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -13,27 +16,45 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  void _signUp() {
-    if (_formKey.currentState!.validate()) {
-      // Placeholder for Firebase Sign Up logic
-      print('Signing Up...');
-      print('Name: ${_nameController.text}');
-      print('Email: ${_emailController.text}');
-      print('Password: ${_passwordController.text}');
-      // Here you would typically call your Firebase authentication method, e.g.:
-      // FirebaseAuth.instance.createUserWithEmailAndPassword(
-      //   email: _emailController.text,
-      //   password: _passwordController.text,
-      // );
+ final AuthService _authService = AuthService();
+
+void _signUp() async {
+  if (_formKey.currentState!.validate()) {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    final error = await _authService.signUp(email, password);
+
+    Navigator.pop(context); // close loading
+
+    if (error == null) {
+      // ✅ Go to main app after successful signup
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const BottomNav()),
+      );
+    } else {
+      // ❌ Show Firebase error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error)),
+      );
     }
   }
+}
+void _login() {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => const LoginPage()),
+  );
+}
 
-  void _login() {
-    // Placeholder for Firebase Login navigation
-    print('Navigating to Login...');
-    // Here you would navigate to your Login page, e.g.:
-    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginPage()));
-  }
 
   @override
   Widget build(BuildContext context) {

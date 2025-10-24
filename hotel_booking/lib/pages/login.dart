@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'signup_page.dart';
+import '../bottom_nav/bottom_nav.dart';
+import '../Services/auth_service.dart';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -12,19 +16,38 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  void _login() {
-    if (_formKey.currentState!.validate()) {
-      // Placeholder for Firebase Login logic
-      print('Logging In...');
-      print('Email: ${_emailController.text}');
-      print('Password: ${_passwordController.text}');
-      // Here you would typically call your Firebase authentication method, e.g.:
-      // FirebaseAuth.instance.signInWithEmailAndPassword(
-      //   email: _emailController.text,
-      //   password: _passwordController.text,
-      // );
+ final AuthService _authService = AuthService();
+
+void _login() async {
+  if (_formKey.currentState!.validate()) {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    final error = await _authService.login(email, password);
+
+    Navigator.pop(context); // close loading dialog
+
+    if (error == null) {
+      // ✅ Successful login
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const BottomNav()),
+      );
+    } else {
+      // ❌ Error handling
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error)),
+      );
     }
   }
+}
 
   void _forgotPassword() {
     print('Navigating to Forgot Password...');
@@ -33,9 +56,10 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _signUp() {
-    print('Navigating to Sign Up...');
-    // Here you would navigate to your Sign Up page, e.g.:
-    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SignUpPage()));
+    Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => const SignUpPage()),
+  );
   }
 
   @override

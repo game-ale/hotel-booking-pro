@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hotel_booking/Services/widget_suppiler.dart';
 import 'package:hotel_booking/Services/buildHotelCard.dart'; 
 import 'package:hotel_booking/Services/new_place.dart'; 
+import 'package:hotel_booking/hotelowner/hoteldetail.dart';
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -12,9 +13,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(150, 255, 255, 255),
-      body: SingleChildScrollView( // ✅ Enables vertical scrolling
+    return SingleChildScrollView( // ✅ Enables vertical scrolling
         child: Column(
           children: [
             // ===========================
@@ -154,12 +153,20 @@ SizedBox(
   ),
 ),
 
- const SizedBox(height: 30)
+ const SizedBox(height: 30),
+
+ ElevatedButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const HotelDetailPage()),
+    );
+  },
+  child: const Text("Add New Hotel"),
+)
+
           ],
         ),
-      ),
-    );
+      );
   }
-
-  
 }

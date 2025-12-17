@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "508397693580",
+    "project_id": "chat-app-3b1dc",
+    "storage_bucket": "chat-app-3b1dc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:508397693580:android:840811ae5b9321048829a9",
+        "android_client_info": {
+          "package_name": "com.example.hotel_booking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQroMtmX2yLt9Jn3W87wmqKk2mGSKqvMI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:508397693580:android:38ebd79c0ad917ed8829a9",
+        "android_client_info": {
+          "package_name": "com.hotelbooking.hotel_booking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQroMtmX2yLt9Jn3W87wmqKk2mGSKqvMI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

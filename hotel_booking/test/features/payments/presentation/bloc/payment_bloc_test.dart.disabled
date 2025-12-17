@@ -1,0 +1,85 @@
+import 'package:bloc_test/bloc_test.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:hotel_booking/core/error/failures.dart';
+import 'package:hotel_booking/features/payments/domain/entities/payment_entity.dart';
+import 'package:hotel_booking/features/payments/domain/entities/payment_status.dart';
+import 'package:hotel_booking/features/payments/domain/usecases/get_payment_status_usecase.dart';
+import 'package:hotel_booking/features/payments/domain/usecases/initiate_payment_usecase.dart';
+import 'package:hotel_booking/features/payments/domain/usecases/verify_payment_usecase.dart';
+import 'package:hotel_booking/features/payments/presentation/bloc/payment_bloc.dart';
+import 'package:hotel_booking/features/payments/presentation/bloc/payment_event.dart';
+import 'package:hotel_booking/features/payments/presentation/bloc/payment_state.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+
+import 'payment_bloc_test.mocks.dart';
+
+@GenerateMocks([InitiatePaymentUseCase, VerifyPaymentUseCase, GetPaymentStatusUseCase])
+void main() {
+  late PaymentBloc bloc;
+  late MockInitiatePaymentUseCase mockInitiatePaymentUseCase;
+  late MockVerifyPaymentUseCase mockVerifyPaymentUseCase;
+  late MockGetPaymentStatusUseCase mockGetPaymentStatusUseCase;
+
+  setUp(() {
+    mockInitiatePaymentUseCase = MockInitiatePaymentUseCase();
+    mockVerifyPaymentUseCase = MockVerifyPaymentUseCase();
+    mockGetPaymentStatusUseCase = MockGetPaymentStatusUseCase();
+    bloc = PaymentBloc(
+      initiatePaymentUseCase: mockInitiatePaymentUseCase,
+      verifyPaymentUseCase: mockVerifyPaymentUseCase,
+      getPaymentStatusUseCase: mockGetPaymentStatusUseCase,
+    );
+  });
+
+  final tPayment = PaymentEntity(
+    id: 'payment_123',
+    bookingId: 'booking_123',
+    amount: 100.0,
+    currency: 'USD',
+    status: PaymentStatus.pending,
+    method: 'credit_card',
+    timestamp: DateTime.now(),
+  );
+
+  group('InitiatePayment', () {
+    blocTest<PaymentBloc, PaymentState>(
+      'emits [PaymentLoading, PaymentInitiated] when successful',
+      build: () {
+        when(mockInitiatePaymentUseCase(any))
+            .thenAnswer((_) async => Right(tPayment));
+        return bloc;
+      },
+      act: (bloc) => bloc.add(InitiatePaymentEvent(
+        bookingId: 'booking_123',
+        amount: 100.0,
+        currency: 'USD',
+        method: 'credit_card',
+      )),
+      expect: () => [
+        PaymentLoading(),
+        PaymentInitiated(tPayment),
+      ],
+    );
+
+    blocTest<PaymentBloc, PaymentState>(
+      'emits [PaymentLoading, PaymentError] when fails',
+      build: () {
+        when(mockInitiatePaymentUseCase(any))
+            .thenAnswer((_) async => Left(ServerFailure('Server Error')));
+        return bloc;
+      },
+      act: (bloc) => bloc.add(InitiatePaymentEvent(
+        bookingId: 'booking_123',
+        amount: 100.0,
+        currency: 'USD',
+        method: 'credit_card',
+      )),
+      expect: () => [
+        PaymentLoading(),
+        PaymentError('Server Error'),
+      ],
+    );
+  });
+}

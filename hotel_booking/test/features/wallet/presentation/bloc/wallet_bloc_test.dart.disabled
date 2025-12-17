@@ -1,0 +1,70 @@
+import 'package:bloc_test/bloc_test.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:hotel_booking/core/error/failures.dart';
+import 'package:hotel_booking/features/wallet/domain/entities/wallet_entity.dart';
+import 'package:hotel_booking/features/wallet/domain/usecases/add_funds_usecase.dart';
+import 'package:hotel_booking/features/wallet/domain/usecases/get_transaction_history_usecase.dart';
+import 'package:hotel_booking/features/wallet/domain/usecases/get_wallet_usecase.dart';
+import 'package:hotel_booking/features/wallet/presentation/bloc/wallet_bloc.dart';
+import 'package:hotel_booking/features/wallet/presentation/bloc/wallet_event.dart';
+import 'package:hotel_booking/features/wallet/presentation/bloc/wallet_state.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+
+import 'wallet_bloc_test.mocks.dart';
+
+@GenerateMocks([GetWalletUseCase, AddFundsUseCase, GetTransactionHistoryUseCase])
+void main() {
+  late WalletBloc bloc;
+  late MockGetWalletUseCase mockGetWalletUseCase;
+  late MockAddFundsUseCase mockAddFundsUseCase;
+  late MockGetTransactionHistoryUseCase mockGetTransactionHistoryUseCase;
+
+  setUp(() {
+    mockGetWalletUseCase = MockGetWalletUseCase();
+    mockAddFundsUseCase = MockAddFundsUseCase();
+    mockGetTransactionHistoryUseCase = MockGetTransactionHistoryUseCase();
+    bloc = WalletBloc(
+      getWalletUseCase: mockGetWalletUseCase,
+      addFundsUseCase: mockAddFundsUseCase,
+      getTransactionHistoryUseCase: mockGetTransactionHistoryUseCase,
+    );
+  });
+
+  final tWallet = WalletEntity(
+    userId: 'user_123',
+    balance: 100.0,
+    currency: 'USD',
+  );
+
+  group('GetWallet', () {
+    blocTest<WalletBloc, WalletState>(
+      'emits [WalletLoading, WalletLoaded] when successful',
+      build: () {
+        when(mockGetWalletUseCase(any))
+            .thenAnswer((_) async => Right(tWallet));
+        return bloc;
+      },
+      act: (bloc) => bloc.add(GetWalletEvent(userId: 'user_123')),
+      expect: () => [
+        WalletLoading(),
+        WalletLoaded(tWallet),
+      ],
+    );
+
+    blocTest<WalletBloc, WalletState>(
+      'emits [WalletLoading, WalletError] when fails',
+      build: () {
+        when(mockGetWalletUseCase(any))
+            .thenAnswer((_) async => Left(ServerFailure('Server Error')));
+        return bloc;
+      },
+      act: (bloc) => bloc.add(GetWalletEvent(userId: 'user_123')),
+      expect: () => [
+        WalletLoading(),
+        WalletError('Server Error'),
+      ],
+    );
+  });
+}
